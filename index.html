@@ -10,37 +10,53 @@
   <meta name="apple-mobile-web-app-title" content="Protocol">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#09090B">
+  <meta name="theme-color" content="#0B101B">
 
-  <!-- Font Presisi: Inter & JetBrains Mono -->
+  <!-- Font Presisi & Estetik: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-base: #09090B;
-      --bg-surface: #121215;
-      --bg-surface-hover: #18181C;
-      --bg-elevated: #1C1C22;
-      --border-subtle: #222228;
-      --border-focus: #3F3F46;
+      /* Rich Midnight Slate Palette (Nyaman di mata & tidak monoton) */
+      --bg-deep: #0B101B;
+      --bg-card: rgba(22, 31, 48, 0.78);
+      --bg-card-solid: #161F30;
+      --bg-elevated: #1E293B;
+      --bg-glass: rgba(30, 41, 59, 0.55);
       
-      --text-primary: #F4F4F5;
-      --text-secondary: #A1A1AA;
-      --text-muted: #52525B;
+      --border-soft: rgba(148, 163, 184, 0.14);
+      --border-highlight: rgba(148, 163, 184, 0.28);
+
+      --text-main: #F8FAFC;
+      --text-sub: #94A3B8;
+      --text-muted: #64748B;
+
+      /* Stage Colors (Dopamine Checkpoints) */
+      --stage-base: #6366F1;       /* 0-49%: Indigo Calm */
+      --stage-base-glow: rgba(99, 102, 241, 0.18);
       
-      --accent-neutral: #E4E4E7;
-      --accent-emerald: #10B981;
-      --accent-emerald-dim: rgba(16, 185, 129, 0.12);
-      --accent-gold: #F59E0B;
-      --accent-gold-dim: rgba(245, 158, 11, 0.14);
+      --stage-50: #06B6D4;         /* 50-79%: Electric Cyan (Checkpoint 1) */
+      --stage-50-glow: rgba(6, 182, 212, 0.22);
       
-      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --stage-80: #10B981;         /* 80-99%: Vivid Emerald (Streak Safe) */
+      --stage-80-glow: rgba(16, 185, 129, 0.24);
+      
+      --stage-100: #F59E0B;        /* 100%: Royal Gold (Perfect Day) */
+      --stage-100-glow: rgba(245, 158, 11, 0.28);
+
+      --danger: #F43F5E;
+
+      /* Phase Accent Colors */
+      --phase-morning: #F59E0B;
+      --phase-noon: #38BDF8;
+      --phase-ilmu: #A855F7;
+      --phase-afternoon: #10B981;
+      --phase-night: #818CF8;
+
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
-      
-      --safe-top: env(safe-area-inset-top, 20px);
-      --safe-bottom: env(safe-area-inset-bottom, 24px);
     }
 
     * {
@@ -53,288 +69,413 @@
     }
 
     body {
-      background-color: var(--bg-base);
-      color: var(--text-primary);
+      background-color: var(--bg-deep);
+      background-image: 
+        radial-gradient(circle at 15% 5%, var(--ambient-top, rgba(99, 102, 241, 0.16)), transparent 45%),
+        radial-gradient(circle at 85% 25%, var(--ambient-side, rgba(6, 182, 212, 0.10)), transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
       font-family: var(--font-sans);
-      line-height: 1.5;
       min-height: 100vh;
-      padding-top: calc(var(--safe-top) + 16px);
-      padding-bottom: calc(var(--safe-bottom) + 40px);
+      /* Fix Poni / Notch iOS: Jaminan jarak aman minimal 62px dari ujung atas layar */
+      padding-top: max(calc(env(safe-area-inset-top, 44px) + 20px), 62px);
+      padding-bottom: max(calc(env(safe-area-inset-bottom, 24px) + 36px), 48px);
       padding-left: 18px;
       padding-right: 18px;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+      transition: background-image 0.6s ease;
     }
 
-    .app-wrapper {
+    .app-container {
       max-width: 480px;
       margin: 0 auto;
+      position: relative;
     }
 
-    /* HEADER & STATUS BAR */
-    .header-top {
+    /* HEADER UTAMA */
+    .header-bar {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .date-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .deck-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .day-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #38BDF8;
+    }
+
+    .deck-indicator {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text-sub);
+    }
+
+    .main-date {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
+    }
+
+    .streak-badge {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-highlight);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .streak-badge.lit {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(234, 88, 12, 0.15));
+      border-color: rgba(245, 158, 11, 0.55);
+      color: #FBBF24;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.22);
+    }
+
+    /* NAVIGASI TAB (HARI INI vs OVERVIEW) */
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border-soft);
+      padding: 4px;
+      border-radius: 14px;
       margin-bottom: 18px;
     }
 
-    .date-block {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .day-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-secondary);
-    }
-
-    .date-title {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--text-primary);
-    }
-
-    .streak-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-family: var(--font-mono);
+    .nav-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      font-family: var(--font-sans);
       font-size: 13px;
       font-weight: 600;
-      color: var(--text-primary);
+      padding: 9px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .nav-tab-btn.active {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* HERO DASHBOARD CARD */
+    .hero-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-soft);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .hero-card.stage-50 {
+      border-color: rgba(6, 182, 212, 0.45);
+      box-shadow: 0 10px 30px -5px var(--stage-50-glow);
+    }
+
+    .hero-card.stage-80 {
+      border-color: rgba(16, 185, 129, 0.5);
+      box-shadow: 0 10px 30px -5px var(--stage-80-glow);
+    }
+
+    .hero-card.stage-100 {
+      border-color: rgba(245, 158, 11, 0.6);
+      box-shadow: 0 10px 35px -5px var(--stage-100-glow);
+    }
+
+    .quote-container {
+      position: relative;
+      padding-left: 13px;
+      margin-bottom: 18px;
+      border-left: 3px solid var(--stage-base);
+      transition: border-color 0.3s ease;
+    }
+
+    .hero-card.stage-50 .quote-container { border-left-color: var(--stage-50); }
+    .hero-card.stage-80 .quote-container { border-left-color: var(--stage-80); }
+    .hero-card.stage-100 .quote-container { border-left-color: var(--stage-100); }
+
+    .quote-text {
+      font-size: 13.5px;
+      font-weight: 500;
+      line-height: 1.55;
+      color: #E2E8F0;
+    }
+
+    /* PROGRESS BAR & MILESTONE MARKERS */
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 9px;
+    }
+
+    .status-chip {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #818CF8;
       transition: all 0.3s ease;
     }
 
-    .streak-pill.active-streak {
-      border-color: rgba(245, 158, 11, 0.4);
-      background: var(--accent-gold-dim);
-      color: var(--accent-gold);
+    .hero-card.stage-50 .status-chip {
+      background: rgba(6, 182, 212, 0.16);
+      color: #22D3EE;
     }
 
-    /* DASHBOARD CARD (MOTIVASI & PROGRES) */
-    .dashboard-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 16px;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.3s ease;
+    .hero-card.stage-80 .status-chip {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34D399;
     }
 
-    .dashboard-card.state-80 {
-      border-color: rgba(16, 185, 129, 0.35);
+    .hero-card.stage-100 .status-chip {
+      background: rgba(245, 158, 11, 0.18);
+      color: #FBBF24;
     }
 
-    .dashboard-card.state-100 {
-      border-color: rgba(245, 158, 11, 0.45);
-    }
-
-    .quote-box {
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--text-primary);
-      line-height: 1.55;
-      margin-bottom: 16px;
-      padding-left: 11px;
-      border-left: 2px solid var(--border-focus);
-      transition: border-color 0.3s ease;
-    }
-
-    .dashboard-card.state-80 .quote-box {
-      border-left-color: var(--accent-emerald);
-    }
-
-    .dashboard-card.state-100 .quote-box {
-      border-left-color: var(--accent-gold);
-    }
-
-    .progress-meta {
+    .progress-numbers {
       display: flex;
-      justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 8px;
+      gap: 8px;
     }
 
-    .progress-fraction {
+    .fraction-label {
       font-family: var(--font-mono);
       font-size: 12px;
-      color: var(--text-secondary);
+      color: var(--text-sub);
     }
 
-    .progress-percent {
+    .percent-big {
       font-family: var(--font-mono);
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--text-primary);
-      transition: color 0.3s ease;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-main);
     }
 
-    .dashboard-card.state-80 .progress-percent {
-      color: var(--accent-emerald);
-    }
-
-    .dashboard-card.state-100 .progress-percent {
-      color: var(--accent-gold);
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 8px;
-      background: var(--bg-elevated);
+    .progress-bar-wrap {
+      position: relative;
+      height: 11px;
+      background: rgba(15, 23, 42, 0.85);
       border-radius: 999px;
       overflow: hidden;
-      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .progress-fill {
+    .progress-bar-fill {
       height: 100%;
       width: 0%;
-      background: var(--accent-neutral);
       border-radius: 999px;
-      transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease;
+      background: linear-gradient(90deg, #4F46E5, #818CF8);
+      transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s ease;
     }
 
-    .dashboard-card.state-80 .progress-fill {
-      background: var(--accent-emerald);
+    .hero-card.stage-50 .progress-bar-fill {
+      background: linear-gradient(90deg, #0891B2, #22D3EE);
     }
 
-    .dashboard-card.state-100 .progress-fill {
-      background: var(--accent-gold);
+    .hero-card.stage-80 .progress-bar-fill {
+      background: linear-gradient(90deg, #059669, #34D399);
     }
 
-    /* 80% THRESHOLD MARKER */
-    .threshold-marker {
+    .hero-card.stage-100 .progress-bar-fill {
+      background: linear-gradient(90deg, #D97706, #FBBF24);
+    }
+
+    .checkpoint-line {
       position: absolute;
-      left: 80%;
       top: 0;
       bottom: 0;
       width: 2px;
-      background: rgba(9, 9, 11, 0.7);
-      z-index: 2;
+      background: rgba(11, 16, 27, 0.75);
+      z-index: 3;
+    }
+    .cp-50 { left: 50%; }
+    .cp-80 { left: 80%; }
+
+    .checkpoint-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-muted);
+      margin-top: 5px;
+      padding: 0 2px;
     }
 
-    /* 7-DAY MINI HEATMAP */
-    .heatmap-row {
+    /* HEATMAP MINGGUAN TETAP (AHAD - SABTU) */
+    .weekly-strip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-soft);
+      margin-bottom: 8px;
+    }
+
+    .strip-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-sub);
+    }
+
+    .heatmap-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 6px;
-      margin-top: 16px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border-subtle);
     }
 
-    .heatmap-cell {
+    .heat-col {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 5px;
     }
 
-    .heatmap-day-name {
+    .heat-day {
       font-family: var(--font-mono);
       font-size: 10px;
+      font-weight: 600;
       color: var(--text-muted);
-      text-transform: uppercase;
     }
 
-    .heatmap-cell.is-today .heatmap-day-name {
-      color: var(--text-primary);
+    .heat-col.today .heat-day {
+      color: #38BDF8;
       font-weight: 700;
     }
 
-    .heatmap-box {
+    .heat-pill {
       width: 100%;
-      height: 22px;
-      border-radius: 6px;
-      background: var(--bg-elevated);
-      border: 1px solid transparent;
+      height: 26px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-soft);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: var(--font-mono);
       font-size: 10px;
+      font-weight: 600;
       color: var(--text-muted);
       transition: all 0.25s ease;
     }
 
-    .heatmap-cell.is-today .heatmap-box {
-      border-color: var(--border-focus);
-      color: var(--text-secondary);
+    .heat-col.today .heat-pill {
+      border-color: #38BDF8;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.25);
     }
 
-    .heatmap-box.level-partial {
-      background: rgba(228, 228, 231, 0.08);
-      color: var(--text-secondary);
+    .heat-pill.lv-low {
+      background: rgba(99, 102, 241, 0.16);
+      color: #A5B4FC;
+      border-color: rgba(99, 102, 241, 0.3);
     }
 
-    .heatmap-box.level-streak {
-      background: var(--accent-emerald-dim);
-      border-color: rgba(16, 185, 129, 0.4);
-      color: var(--accent-emerald);
-      font-weight: 600;
+    .heat-pill.lv-50 {
+      background: rgba(6, 182, 212, 0.18);
+      color: #22D3EE;
+      border-color: rgba(6, 182, 212, 0.4);
     }
 
-    .heatmap-box.level-perfect {
-      background: var(--accent-gold-dim);
-      border-color: rgba(245, 158, 11, 0.5);
-      color: var(--accent-gold);
-      font-weight: 700;
+    .heat-pill.lv-80 {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34D399;
+      border-color: rgba(16, 185, 129, 0.45);
     }
 
-    /* KATEGORI & FILTER BAR */
-    .controls-bar {
+    .heat-pill.lv-100 {
+      background: rgba(245, 158, 11, 0.24);
+      color: #FBBF24;
+      border-color: rgba(245, 158, 11, 0.55);
+    }
+
+    /* DAFTAR HABIT & KATEGORI BERWARNA */
+    .toolbar-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 20px 0 12px;
-      padding: 0 2px;
+      margin: 18px 2px 12px;
     }
 
-    .section-info {
+    .toolbar-label {
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 0.04em;
+      color: var(--text-sub);
+      letter-spacing: 0.05em;
     }
 
-    .filter-toggle {
-      background: none;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
+    .btn-small {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      color: var(--text-sub);
       font-family: var(--font-sans);
       font-size: 11.5px;
-      font-weight: 500;
-      padding: 4px 10px;
-      border-radius: 6px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s;
     }
 
-    .filter-toggle.active {
+    .btn-small.active {
       background: var(--bg-elevated);
-      color: var(--text-primary);
-      border-color: var(--border-focus);
+      color: var(--text-main);
+      border-color: #38BDF8;
     }
 
-    /* HABIT GROUPS & CARDS */
-    .phase-group {
-      margin-bottom: 20px;
+    .phase-block {
+      margin-bottom: 18px;
     }
 
-    .phase-header {
+    .phase-title-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -342,49 +483,62 @@
       padding: 0 4px;
     }
 
-    .phase-title {
-      font-size: 11.5px;
-      font-weight: 600;
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-secondary);
+      letter-spacing: 0.06em;
+      color: var(--text-main);
     }
 
-    .phase-counter {
+    .phase-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .phase-count {
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-muted);
+      color: var(--text-sub);
     }
 
-    .habit-list {
+    .habit-stack {
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 8px;
     }
 
-    .habit-item {
+    .habit-card {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
+      background: var(--bg-card);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border-soft);
+      border-left: 3.5px solid var(--phase-color, #6366F1);
+      border-radius: 14px;
       padding: 13px 14px;
       cursor: pointer;
-      transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease, opacity 0.25s ease;
+      transition: transform 0.14s ease, background 0.25s ease, opacity 0.25s ease, border-color 0.25s ease;
     }
 
-    .habit-item:active {
-      transform: scale(0.985);
+    .habit-card:active {
+      transform: scale(0.98);
     }
 
-    .habit-item.completed {
-      background: rgba(18, 18, 21, 0.45);
-      border-color: rgba(34, 34, 40, 0.5);
-      opacity: 0.52;
+    .habit-card.done {
+      background: rgba(15, 23, 42, 0.45);
+      border-color: rgba(148, 163, 184, 0.08);
+      border-left-color: #10B981;
+      opacity: 0.58;
     }
 
-    .habit-left {
+    .habit-main {
       display: flex;
       align-items: center;
       gap: 12px;
@@ -392,164 +546,433 @@
       min-width: 0;
     }
 
-    .checkbox-ring {
-      width: 22px;
-      height: 22px;
-      border-radius: 7px;
-      border: 1.75px solid var(--border-focus);
+    .check-box {
+      width: 23px;
+      height: 23px;
+      border-radius: 8px;
+      border: 2px solid var(--border-highlight);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-      background: rgba(255, 255, 255, 0.01);
+      background: rgba(15, 23, 42, 0.5);
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .habit-item.completed .checkbox-ring {
-      background: var(--accent-emerald);
-      border-color: var(--accent-emerald);
+    .habit-card.done .check-box {
+      background: #10B981;
+      border-color: #10B981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
     }
 
-    .check-svg {
+    .check-icon {
       width: 13px;
       height: 13px;
-      stroke: var(--bg-base);
-      stroke-width: 3;
+      stroke: #0B101B;
+      stroke-width: 3.2;
       stroke-linecap: round;
       stroke-linejoin: round;
       fill: none;
       opacity: 0;
-      transform: scale(0.5);
+      transform: scale(0.4);
       transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .habit-item.completed .check-svg {
+    .habit-card.done .check-icon {
       opacity: 1;
       transform: scale(1);
     }
 
-    .habit-text-wrap {
+    .habit-info {
       display: flex;
       flex-direction: column;
       min-width: 0;
     }
 
-    .habit-name {
+    .habit-title {
       font-size: 14.5px;
-      font-weight: 500;
-      color: var(--text-primary);
+      font-weight: 600;
+      color: var(--text-main);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      transition: color 0.2s ease;
     }
 
-    .habit-item.completed .habit-name {
+    .habit-card.done .habit-title {
       text-decoration: line-through;
-      color: var(--text-secondary);
+      color: var(--text-sub);
     }
 
-    .habit-badge-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .habit-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
       margin-top: 2px;
     }
 
-    .schedule-tag {
+    .btn-edit-inline {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-soft);
+      color: var(--text-sub);
       font-family: var(--font-mono);
       font-size: 10px;
-      color: var(--text-muted);
-    }
-
-    .edit-btn {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      font-family: var(--font-mono);
-      font-size: 10px;
-      padding: 3px 7px;
-      border-radius: 5px;
+      padding: 4px 8px;
+      border-radius: 6px;
       margin-left: 8px;
       flex-shrink: 0;
-      cursor: pointer;
     }
 
-    .edit-btn:active {
-      background: var(--border-focus);
-      color: var(--text-primary);
+    /* HALAMAN OVERVIEW & EVALUASI */
+    .hidden { display: none !important; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
     }
 
-    /* FOOTER INFO */
-    .footer-meta {
-      margin-top: 32px;
-      text-align: center;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-muted);
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .stat-note {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .panel-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .panel-subtitle {
+      font-size: 11.5px;
+      color: var(--text-sub);
+      margin-bottom: 14px;
+    }
+
+    /* BAR CHART MINGGUAN DI OVERVIEW */
+    .bar-chart-wrap {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
       gap: 8px;
+      height: 120px;
+      align-items: end;
+      padding-top: 12px;
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 85px;
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+    }
+
+    .bar-fill {
+      width: 100%;
+      border-radius: 6px 6px 0 0;
+      transition: height 0.4s ease;
+    }
+
+    .bar-pct {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-sub);
+    }
+
+    /* EVALUASI HABIT LIST */
+    .eval-item {
+      display: flex;
+       flex-direction: column;
+      gap: 5px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .eval-item:last-child { border-bottom: none; }
+
+    .eval-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .eval-bar-bg {
+      height: 6px;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .eval-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    /* BACKUP BUTTONS */
+    .backup-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-action {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-highlight);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 11px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-action.primary {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.45);
+      color: #38BDF8;
+    }
+
+    /* TOAST NOTIFICATION */
+    .toast-banner {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1E293B;
+      border: 1px solid #38BDF8;
+      color: #F8FAFC;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    .toast-banner.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
     }
   </style>
 </head>
-    <body>
-  <div class="app-wrapper">
-    <!-- HEADER -->
-    <header class="header-top">
-      <div class="date-block">
-        <span class="day-label" id="day-label">MEMUAT...</span>
-        <h1 class="date-title" id="date-title">...</h1>
+<body>
+  <!-- Trik Pemicu Taptic Engine Native iOS Safari (iOS 17.4+) -->
+  <div style="position:fixed; top:-100px; left:-100px; opacity:0; pointer-events:none;" aria-hidden="true">
+    <input type="checkbox" switch id="ios-haptic-switch">
+    <label for="ios-haptic-switch" id="ios-haptic-trigger">Haptic</label>
+  </div>
+
+  <div class="app-container">
+    <!-- HEADER UTAMA -->
+    <header class="header-bar">
+      <div class="date-group">
+        <div class="deck-badge-row">
+          <span class="day-tag" id="day-tag">MEMUAT...</span>
+          <span class="deck-indicator" id="deck-indicator">DECK A</span>
+        </div>
+        <h1 class="main-date" id="main-date">...</h1>
       </div>
-      <div class="streak-pill" id="streak-pill" title="Streak aktif jika progres harian minimal 80%">
+      <div class="streak-badge" id="streak-badge" onclick="switchTab('overview')">
         <span>🔥</span>
         <span id="streak-count">0d</span>
       </div>
     </header>
 
-    <!-- DASHBOARD MOTIVASI & PROGRES -->
-    <section class="dashboard-card" id="dashboard-card">
-      <div class="quote-box" id="quote-box">
-        Memuat protokol harian...
-      </div>
-
-      <div class="progress-meta">
-        <span class="progress-fraction" id="progress-fraction">0 / 0 SELESAI</span>
-        <span class="progress-percent" id="progress-percent">0%</span>
-      </div>
-
-      <div class="progress-track">
-        <div class="threshold-marker" title="Batas minimal 80% untuk menjaga Streak"></div>
-        <div class="progress-fill" id="progress-fill"></div>
-      </div>
-
-      <!-- 7-DAY MINI HEATMAP -->
-      <div class="heatmap-row" id="heatmap-row"></div>
-    </section>
-
-    <!-- BAR KONTROL -->
-    <div class="controls-bar">
-      <span class="section-info" id="section-info">TARGET HARI INI</span>
-      <button class="filter-toggle" id="btn-toggle-all" onclick="toggleShowAllDays()">
-        Lihat Semua (16)
+    <!-- NAVIGASI TAB -->
+    <nav class="nav-tabs">
+      <button class="nav-tab-btn active" id="tab-btn-today" onclick="switchTab('today')">
+        <span>⚡</span> Hari Ini
       </button>
+      <button class="nav-tab-btn" id="tab-btn-overview" onclick="switchTab('overview')">
+        <span>📊</span> Overview & Data
+      </button>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: EKSEKUSI HARI INI                   -->
+    <!-- ========================================== -->
+    <div id="view-today">
+      <section class="hero-card" id="hero-card">
+        <div class="quote-container">
+          <p class="quote-text" id="quote-text">Memuat protokol harian...</p>
+        </div>
+
+        <div class="progress-header">
+          <span class="status-chip" id="status-chip">FASE MULAI</span>
+          <div class="progress-numbers">
+            <span class="fraction-label" id="fraction-label">0/0</span>
+            <span class="percent-big" id="percent-big">0%</span>
+          </div>
+        </div>
+
+        <div class="progress-bar-wrap">
+          <div class="checkpoint-line cp-50" title="Checkpoint 1: 50%"></div>
+          <div class="checkpoint-line cp-80" title="Batas Aman Streak: 80%"></div>
+          <div class="progress-bar-fill" id="progress-bar-fill"></div>
+        </div>
+
+        <div class="checkpoint-labels">
+          <span>0%</span>
+          <span>CP 50% (Cyan)</span>
+          <span>STREAK 80% (Emerald)</span>
+          <span>100%</span>
+        </div>
+
+        <!-- KALENDER MINGGUAN TETAP: AHAD - SABTU -->
+        <div class="weekly-strip-header">
+          <span class="strip-title">PEKAN INI (AHAD – SABTU)</span>
+          <span class="strip-title" id="week-avg-badge">RATA-RATA: 0%</span>
+        </div>
+        <div class="heatmap-grid" id="heatmap-grid"></div>
+      </section>
+
+      <div class="toolbar-row">
+        <span class="toolbar-label" id="toolbar-label">JADWAL HARI INI</span>
+        <button class="btn-small" id="btn-toggle-all" onclick="toggleShowAllDays()">
+          Lihat Semua (16)
+        </button>
+      </div>
+
+      <main id="habits-container"></main>
     </div>
 
-    <!-- DAFTAR HABIT PER FASE -->
-    <main id="habits-container"></main>
+    <!-- ========================================== -->
+    <!-- TAB 2: OVERVIEW, EVALUASI & BACKUP         -->
+    <!-- ========================================== -->
+    <div id="view-overview" class="hidden">
+      <!-- 4 KOTAK STATISTIK UTAMA -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-label">Streak Saat Ini</span>
+          <span class="stat-value" id="stat-cur-streak" style="color:#34D399;">0 Hari</span>
+          <span class="stat-note">Minimal progres ≥80%</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Rekor Terbaik</span>
+          <span class="stat-value" id="stat-best-streak" style="color:#38BDF8;">0 Hari</span>
+          <span class="stat-note">Konsistensi tertinggi</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Streak Runtuh</span>
+          <span class="stat-value" id="stat-broken-count" style="color:#F43F5E;">0 Kali</span>
+          <span class="stat-note">Terputus di bawah 80%</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Perfect Days (100%)</span>
+          <span class="stat-value" id="stat-perfect-count" style="color:#FBBF24;">0 Hari</span>
+          <span class="stat-note">Tuntas tanpa sisa</span>
+        </div>
+      </div>
 
-    <!-- FOOTER -->
-    <footer class="footer-meta">
-      <span>AUTO-RESET SETIAP 03:30 • STREak THRESHOLD 80%</span>
+      <!-- GRAFIK BATANG MINGGUAN (AHAD - SABTU) -->
+      <div class="panel-card">
+        <div style="display:flex; justify-content:space-between; align-items:baseline;">
+          <h2 class="panel-title">Grafik Performa Pekan Ini</h2>
+          <span class="day-tag" id="overview-week-avg">0%</span>
+        </div>
+        <p class="panel-subtitle">Visualisasi pencapaian dari hari Ahad sampai Sabtu</p>
+        <div class="bar-chart-wrap" id="overview-bar-chart"></div>
+      </div>
+
+      <!-- RADAR EVALUASI KONSISTENSI HABIT -->
+      <div class="panel-card">
+        <h2 class="panel-title">Evaluasi Kepatuhan Habit (14 Hari Terakhir)</h2>
+        <p class="panel-subtitle">Diurutkan dari yang paling sering terlewat agar mudah dievaluasi</p>
+        <div id="eval-habit-list"></div>
+      </div>
+
+      <!-- PANEL BACKUP & RESTORE -->
+      <div class="panel-card">
+        <h2 class="panel-title">Cadangkan & Pulihkan Data (Backup)</h2>
+        <p class="panel-subtitle">Simpan kode cadanganmu agar riwayat dan streak tetap aman meski ganti kode atau hapus cache browser.</p>
+        <div class="backup-actions">
+          <button class="btn-action primary" onclick="exportBackupData()">📋 Salin Backup</button>
+          <button class="btn-action" onclick="importBackupData()">📥 Pulihkan Data</button>
+        </div>
+        <div class="backup-actions" style="margin-top:8px;">
+          <button class="btn-action" onclick="downloadBackupFile()">💾 Unduh File .json</button>
+          <button class="btn-action" onclick="document.getElementById('file-import').click()">📂 Unggah File .json</button>
+          <input type="file" id="file-import" accept=".json" style="display:none" onchange="handleFileImport(event)">
+        </div>
+      </div>
+    </div>
+
+    <footer style="text-align:center; margin-top:28px; font-family:var(--font-mono); font-size:10.5px; color:var(--text-muted);">
+      RESET OTOMATIS 03:30 • CHECKPOINT 50% • STREAK 80%
     </footer>
   </div>
 
+  <!-- NOTIFIKASI TOAST -->
+  <div class="toast-banner" id="toast-banner">Tersimpan</div>
+
   <script>
     // ==========================================
-    // 1. KONFIGURASI & DATABASE HABIT
+    // 1. KONFIGURASI & DATABASE 16 HABIT
     // ==========================================
+    // Menggunakan key yang sama agar data sebelumnya otomatis terbaca
     const STORAGE_KEY = 'daily_protocol_data_v1';
     let showAllMode = false;
+    let currentTab = 'today';
+
+    const PHASE_META = {
+      'Pagi & Fisik': { color: 'var(--phase-morning)' },
+      'Fokus Siang': { color: 'var(--phase-noon)' },
+      'Literasi & Ilmu': { color: 'var(--phase-ilmu)' },
+      'Sore & Penjagaan': { color: 'var(--phase-afternoon)' },
+      'Malam & Penutup': { color: 'var(--phase-night)' }
+    };
 
     // 0 = Ahad, 1 = Senin, 2 = Selasa, 3 = Rabu, 4 = Kamis, 5 = Jumat, 6 = Sabtu
     const DEFAULT_HABITS = [
@@ -562,12 +985,12 @@
       { id: 'h_belajar_1', title: '☀️ Belajar Sesi 1', phase: 'Fokus Siang', days: [0,1,2,3,4,5,6], editable: false },
       { id: 'h_belajar_2', title: '☀️ Belajar Sesi 2', phase: 'Fokus Siang', days: [0,1,2,3,4,5,6], editable: false },
 
-      // FASE 3: LITERASI & TALAQQI ILMU
+      // FASE 3: LITERASI & ILMU
       { id: 'h_fiqih', title: '📖 Baca Fiqih', phase: 'Literasi & Ilmu', days: [0,1,2,3,4,5,6], editable: true },
       { id: 'h_tafsir', title: '📖 Baca Tafsir', phase: 'Literasi & Ilmu', days: [0,1,2,3,4,5,6], editable: true },
       { id: 'h_hadits_baca', title: '📖 Baca Hadits', phase: 'Literasi & Ilmu', days: [0,1,2,3,4,5,6], editable: true },
       { id: 'h_arabic', title: '📚 Learning Arabic', phase: 'Literasi & Ilmu', days: [0,1,2,3,4,5,6], editable: false },
-      { id: 'h_math', title: '📐 Learning Math', phase: 'Literasi & Ilmu', days: [5,6], scheduleLabel: 'Jumat–Sabtu', editable: false },
+      { id: 'h_math', title: '📐 Learning Math', phase: 'Literasi & Ilmu', days: [5,6], scheduleLabel: 'Khusus Jumat–Sabtu', editable: false },
 
       // FASE 4: SORE & PENJAGAAN
       { id: 'h_juz_awal', title: '🕒 Murojaah Juz Awal', phase: 'Sore & Penjagaan', days: [0,1,2,3,4,5,6], editable: true },
@@ -581,45 +1004,114 @@
     ];
 
     // ==========================================
-    // 2. KALIMAT PENYEMANGAT KONTEKSTUAL
+    // 2. SISTEM ROTASI 3 HARI KALIMAT MOTIVASI (DECK A, B, C)
     // ==========================================
-    const QUOTES = {
-      start: [
-        "Momentum hari ini ditentukan dari jam pertamamu. Eksekusi satu yang paling berat.",
-        "Jangan bernegosiasi dengan rasa malas di waktu pagi. Mulai saja dulu.",
-        "Ilmu dan ketajaman berpikir tidak didapat dengan tubuh yang santai. Buka lembaran pertamamu.",
-        "Fokus pada satu kotak centang pertama. Gerakan kecil mengalahkan niat besar yang diam."
-      ],
-      mid: [
-        "Separuh jalan. Jaga ritme, jangan biarkan waktu bocor ke hal yang tidak memberi nilai.",
-        "Sedikit tapi kontinu jauh lebih tajam daripada banyak tapi terputus.",
-        "Konsistensi di jam-jam lelah inilah yang membedakan hasil akhir.",
-        "Progres sedang berjalan. Tutup celah distraksi, selesaikan satu fase lagi."
-      ],
-      near: [
-        "Sudah di atas 70%. Tinggal beberapa langkah lagi untuk mengunci hari ini dengan bersih.",
-        "Jangan beri diskon di ujung hari. Tuntaskan apa yang sudah kamu mulai tadi pagi.",
-        "Rasa lelah itu hilang setelah istirahat, tapi catatan disiplin hari ini permanen.",
-        "Sedikit lagi menembus batas aman. Selesaikan sisanya dengan tenang."
-      ],
-      late_rescue: [
-        "Hari belum berakhir sampai 03:30. Ambil apa yang masih bisa diselamatkan malam ini.",
-        "Hari yang padat? Tidak masalah. Cicil yang paling ringan, jangan biarkan hari ini tertutup nol.",
-        "Masih ada waktu sebelum pergantian hari. Amankan target inti yang belum tersentuh."
-      ],
-      done: [
-        "Target hari ini tuntas 100% tanpa hutang. Istirahat dengan tenang, besok kita jaga lagi.",
-        "Disiplin terjaga penuh. Satu batu bata lagi berhasil dipasang hari ini.",
-        "Protokol harian selesai sempurna. Nikmati waktu istirahatmu."
-      ]
-    };
+    const QUOTE_DECKS = [
+      // DECK A (HARI 1): Fokus pada Momentum & Ketajaman Ilmu
+      {
+        name: 'DECK A',
+        start: [
+          "Momentum hari ini ditentukan dari jam pertamamu. Eksekusi satu yang paling berat.",
+          "Ilmu tidak akan menetap pada hati yang lalai dan tubuh yang malas. Buka lembaran pertamamu.",
+          "Fokus pada satu centang pertama. Gerakan kecil mengalahkan niat besar yang diam."
+        ],
+        progress: [
+          "Mesin sudah panas. Jaga ritme ini, jangan biarkan distraksi memotong arus fokusmu.",
+          "Kejar Checkpoint 50% terlebih dahulu. Cicil satu per satu tanpa menunda.",
+          "Sedikit tapi kontinu jauh lebih tajam daripada banyak tapi terputus-putus."
+        ],
+        cp50: [
+          "Checkpoint 50% tembus! Separuh beban hari ini sudah di belakangmu. Lanjutkan ke 80%.",
+          "Setengah jalan terlampaui dengan solid. Pertahankan fokus, garis aman streak sudah dekat.",
+          "Titik tengah berhasil dikunci. Jangan kendurkan tensi sampai batas hijau 80%."
+        ],
+        cp80: [
+          "Streak harian resmi aman (≥80%)! Tinggal sedikit lagi untuk menyapu bersih 100%.",
+          "Target utama sudah di tangan. Tuntaskan sisa kecilnya agar hari ini tertutup sempurna.",
+          "Disiplin hari ini sudah terjaga. Selesaikan sisanya sebagai bonus kemenanganmu."
+        ],
+        done: [
+          "100% Tuntas tanpa hutang. Istirahatkan pikiranmu, besok kita bangun lagi.",
+          "Hari yang bersih dan terukur. Semua protokol terlaksana dengan sempurna."
+        ],
+        rescue: [
+          "Waktu masih berjalan sebelum 03:30. Selamatkan minimal sampai Checkpoint 50% malam ini.",
+          "Hari yang padat? Ambil tugas yang paling ringan sekarang, jangan biarkan hari ini kosong."
+        ]
+      },
+
+      // DECK B (HARI 2): Fokus pada Karakter,Ketahanan & Disiplin Diri
+      {
+        name: 'DECK B',
+        start: [
+          "Jangan bernegosiasi dengan rasa enggan di pagi hari. Mulai sebelum otakmu mencari alasan.",
+          "Disiplin adalah memilih apa yang kamu butuhkan nanti di atas apa yang kamu inginkan sekarang.",
+          "Hafalan dan pemahaman dibangun dari pengulangan yang jujur. Mulai sesi pertamamu."
+        ],
+        progress: [
+          "Langkah awal sudah berjalan. Arahkan pandanganmu lurus ke garis Checkpoint 50%.",
+          "Konsistensi di jam-jam biasa inilah yang membedakan hasil akhir seseorang.",
+          "Kurangi gesekan pikiran: tidak perlu banyak menimbang, langsung buka materinya."
+        ],
+        cp50: [
+          "Garis 50% berhasil dilewati! Energi separuh hari ini terbayar, saatnya mengincar zona hijau.",
+          "Separuh target selesai. Jaga ketenangan, tinggal beberapa langkah menuju zona aman 80%.",
+          "Momentum berada di pihakmu. Teruskan dorongan ini sampai api streak menyala."
+        ],
+        cp80: [
+          "Zona Emerald 80% tercapai! Api konsistensimu terjaga utuh hari ini.",
+          "Sangat solid. Sedikit sentuhan terakhir akan mengubah hari ini menjadi Perfect Day.",
+          "Rasa lelah akan hilang saat tidur, tapi catatan disiplin hari ini tercatat permanen."
+        ],
+        done: [
+          "Perfect Day! Seluruh amanah belajar dan penjagaan hari ini tuntas 100%.",
+          "Tidak ada yang tertinggal. Tidurlah dengan tenang, hari ini kamu menang atas dirimu sendiri."
+        ],
+        rescue: [
+          "Belum terlambat sebelum pukul 03:30. Kumpulkan poin semampumu malam ini.",
+          "Jangan menyerah pada sisa malam. Dua atau tiga centang jauh lebih terhormat daripada nol."
+        ]
+      },
+
+      // DECK C (HARI 3): Fokus pada Akumulasi Jangka Panjang & Ketenangan
+      {
+        name: 'DECK C',
+        start: [
+          "Bangunan besar tersusun dari satu batu bata yang diletakkan dengan rapi setiap hari.",
+          "Awali pagi dengan penjagaan Al-Qur'an dan fisik yang bugar; sisa harimu akan mengikuti.",
+          "Kosongkan beban pikiran dengan menuntaskan tugas pertama sekarang juga."
+        ],
+        progress: [
+          "Satu demi satu mulai terurai. Terus bergerak tenang menuju Checkpoint 50%.",
+          "Waktu yang tidak diisi dengan target terstruktur akan habis oleh hal yang sia-sia.",
+          "Tetap berada di jalur. Setiap centang adalah investasi nyata untuk kapasitas ilmumu."
+        ],
+        cp50: [
+          "50% Tercapai! Separuh protokol sudah beres, beban pikiran kini jauh lebih ringan.",
+          "Checkpoint pertama terkunci. Ambil napas sejenak, lalu gas tipis menuju batas 80%.",
+          "Grafik hari ini sudah menyala biru. Sedikit dorongan lagi untuk mengamankan streak."
+        ],
+        cp80: [
+          "80% Terkunci! Kamu berhasil menjaga ritme di atas standar harian.",
+          "Jangan beri diskon di penghujung hari. Sapu bersih 1-2 tugas terakhir itu.",
+          "Streak aman di genggaman. Penutupan 100% sudah di depan mata."
+        ],
+        done: [
+          "Tuntas paripurna 100%. Satu hari lagi tercatat emas di riwayat perjalananmu.",
+          "Kewajiban harian selesai dengan elegan. Siapkan energi terbaik untuk esok hari."
+        ],
+        rescue: [
+          "Malam belum habis. Ambil apa yang masih bisa diamankan sebelum reset jam 03:30.",
+          "Hari yang berat tetap bisa ditutup dengan baik. Selesaikan yang paling mudah dulu."
+        ]
+      }
+    ];
 
     // ==========================================
-    // 3. MESIN WAKTU (AUTO-RESET 03:30 DINI HARI)
+    // 3. MESIN WAKTU (RESET 03:30 & KALENDER AHAD-SABTU)
     // ==========================================
     function getLogicalDateObj(offsetDays = 0) {
       const now = new Date();
-      // Mundurkan 3 jam 30 menit agar pukul 00:00 - 03:29 masih terhitung hari sebelumnya
       const shifted = new Date(now.getTime() - (3 * 60 + 30) * 60 * 1000);
       if (offsetDays !== 0) {
         shifted.setDate(shifted.getDate() + offsetDays);
@@ -632,6 +1124,19 @@
       const m = String(dateObj.getMonth() + 1).padStart(2, '0');
       const d = String(dateObj.getDate()).padStart(2, '0');
       return `${y}-${m}-${d}`;
+    }
+
+    // Mendapatkan 7 tanggal dalam pekan berjalan (Selalu mulai Ahad s/d Sabtu)
+    function getCurrentWeekDates() {
+      const today = getLogicalDateObj(0);
+      const currentDayIndex = today.getDay(); // 0 = Ahad ... 6 = Sabtu
+      const weekDates = [];
+
+      for (let d = 0; d < 7; d++) {
+        const diff = d - currentDayIndex;
+        weekDates.push(getLogicalDateObj(diff));
+      }
+      return weekDates;
     }
 
     function loadAppState() {
@@ -651,50 +1156,126 @@
     function saveAppState(state) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
-// ==========================================
-    // 4. EFEK SUARA TAKTIL (WEB AUDIO SYNTHESIS)
+  // ==========================================
+    // 4. MESIN HAPTIK iOS & AUDIO DOPAMIN BERTINGKAT
     // ==========================================
     let audioCtx = null;
 
-    function playTactileClick(isChecking = true) {
+    function triggerHapticPulse(type = 'light') {
+      // 1. Pemicu Taptic Engine iOS Safari via hidden switch
+      try {
+        const lbl = document.getElementById('ios-haptic-trigger');
+        if (lbl) lbl.click();
+      } catch (e) {}
+
+      // 2. Fallback Web Vibration API
+      try {
+        if (navigator.vibrate) {
+          if (type === 'milestone') navigator.vibrate([30, 50, 60]);
+          else if (type === 'perfect') navigator.vibrate([40, 40, 40, 40, 90]);
+          else navigator.vibrate(18);
+        }
+      } catch (e) {}
+    }
+
+    function playFeedbackSound(mode = 'check') {
       try {
         if (!audioCtx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
           audioCtx = new AudioContext();
         }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
 
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
         const now = audioCtx.currentTime;
 
-        // Frekuensi naik saat centang (dopamine cue), turun saat batal
-        osc.type = 'triangle';
-        if (isChecking) {
-          osc.frequency.setValueAtTime(520, now);
-          osc.frequency.exponentialRampToValueAtTime(880, now + 0.045);
-        } else {
-          osc.frequency.setValueAtTime(420, now);
-          osc.frequency.exponentialRampToValueAtTime(260, now + 0.04);
+        // Sub-bass thump (60Hz) agar speaker iPhone memberi sensasi getar taktil di tangan
+        const subOsc = audioCtx.createOscillator();
+        const subGain = audioCtx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(65, now);
+        subOsc.frequency.exponentialRampToValueAtTime(32, now + 0.06);
+        subGain.gain.setValueAtTime(0.18, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+        subOsc.connect(subGain);
+        subGain.connect(audioCtx.destination);
+        subOsc.start(now);
+        subOsc.stop(now + 0.07);
+
+        if (mode === 'uncheck') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(380, now);
+          osc.frequency.exponentialRampToValueAtTime(220, now + 0.045);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.055);
+          return;
         }
 
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        if (mode === 'check') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(540, now);
+          osc.frequency.exponentialRampToValueAtTime(920, now + 0.05);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        } else if (mode === 'cp50' || mode === 'cp80') {
+          // Nada 2-not naik saat tembus Checkpoint 50% atau 80%
+          const notes = mode === 'cp50' ? [587.33, 880] : [659.25, 1046.5];
+          notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            const startT = now + idx * 0.075;
+            osc.frequency.setValueAtTime(freq, startT);
+            gain.gain.setValueAtTime(0.09, startT);
+            gain.gain.exponentialRampToValueAtTime(0.001, startT + 0.16);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(startT);
+            osc.stop(startT + 0.17);
+          });
+        } else if (mode === 'cp100') {
+          // Harmoni Arpeggio Emas saat tembus 100% Perfect Day
+          const chord = [523.25, 659.25, 783.99, 1046.5];
+          chord.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            const startT = now + idx * 0.065;
+            osc.frequency.setValueAtTime(freq, startT);
+            gain.gain.setValueAtTime(0.1, startT);
+            gain.gain.exponentialRampToValueAtTime(0.001, startT + 0.25);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(startT);
+            osc.stop(startT + 0.26);
+          });
+        }
+      } catch (e) {}
+    }
 
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        osc.start(now);
-        osc.stop(now + 0.055);
-      } catch (e) {
-        // Abaikan jika perangkat dalam mode bisu ketat
-      }
+    function showToast(message) {
+      const banner = document.getElementById('toast-banner');
+      banner.textContent = message;
+      banner.classList.add('show');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        banner.classList.remove('show');
+      }, 2600);
     }
 
     // ==========================================
-    // 5. KALKULASI PROGRES, STREAK & MOTIVASI
+    // 5. KALKULASI PROGRES, ROTASI 3 DECK & ANALITIK
     // ==========================================
     function getScheduledHabitsForDay(dayIndex) {
       return DEFAULT_HABITS.filter(h => h.days.includes(dayIndex));
@@ -717,69 +1298,133 @@
       return { dateKey, dayIndex, doneCount, total, percent, completedMap };
     }
 
-    function calculateCurrentStreak(state) {
-      let streak = 0;
-      const todayStats = getDayStats(getLogicalDateObj(0), state);
-
-      // Jika hari ini sudah >= 80%, hitung mulai dari hari ini
-      // Jika belum, hitung mulai dari kemarin agar streak tidak terlihat 0 di pagi hari
-      let startOffset = todayStats.percent >= 80 ? 0 : -1;
-
-      for (let i = startOffset; i >= -365; i--) {
-        const dObj = getLogicalDateObj(i);
-        const stats = getDayStats(dObj, state);
-        if (stats.percent >= 80) {
-          streak++;
-        } else {
-          break;
-        }
-      }
-      return streak;
+    // Menentukan Deck A (Hari 1), Deck B (Hari 2), Deck C (Hari 3), lalu kembali ke Deck A
+    function getActiveDeckInfo(dateObj) {
+      const epochDays = Math.floor(dateObj.getTime() / (1000 * 60 * 60 * 24));
+      const deckIndex = ((epochDays % 3) + 3) % 3;
+      return QUOTE_DECKS[deckIndex];
     }
 
-    function getContextualQuote(percent, dateKey) {
-      const now = new Date();
-      const hour = now.getHours();
-      let pool = QUOTES.start;
+    function getContextualQuote(percent, dateObj) {
+      const deck = getActiveDeckInfo(dateObj);
+      const hour = new Date().getHours();
+      let pool = deck.start;
 
       if (percent === 100) {
-        pool = QUOTES.done;
-      } else if (percent >= 70) {
-        pool = QUOTES.near;
+        pool = deck.done;
+      } else if (percent >= 80) {
+        pool = deck.cp80;
+      } else if (percent >= 50) {
+        pool = deck.cp50;
       } else if ((hour >= 20 || hour < 3) && percent < 45) {
-        pool = QUOTES.late_rescue;
-      } else if (percent >= 20) {
-        pool = QUOTES.mid;
+        pool = deck.rescue;
+      } else if (percent > 0) {
+        pool = deck.progress;
       } else {
-        pool = QUOTES.start;
+        pool = deck.start;
       }
 
-      // Pilihan konsisten berdasarkan tanggal + progres agar kalimat tidak melompat liar
-      const seed = dateKey.split('-').reduce((a, b) => a + Number(b), 0) + Math.floor(percent / 20);
+      const seed = dateObj.getDate() + Math.floor(percent / 15);
       return pool[seed % pool.length];
     }
 
+    // Analisis komprehensif: Streak Aktif, Rekor Terbaik, Berapa Kali Runtuh, & Perfect Days
+    function analyzeHistoryStats(state) {
+      const todayObj = getLogicalDateObj(0);
+      const todayStats = getDayStats(todayObj, state);
+
+      // 1. Hitung Current Streak
+      let currentStreak = 0;
+      let startOffset = todayStats.percent >= 80 ? 0 : -1;
+      for (let i = startOffset; i >= -365; i--) {
+        const st = getDayStats(getLogicalDateObj(i), state);
+        if (st.percent >= 80) currentStreak++;
+        else break;
+      }
+
+      // 2. Telusuri seluruh riwayat sejak hari pertama tercatat untuk hitung Best Streak & Runtuh
+      const recordedKeys = Object.keys(state.history).sort();
+      let bestStreak = currentStreak;
+      let brokenCount = 0;
+      let perfectCount = 0;
+
+      if (recordedKeys.length > 0) {
+        const firstKey = recordedKeys[0];
+        const parts = firstKey.split('-').map(Number);
+        const firstDate = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+        const todayNoon = new Date(todayObj.getFullYear(), todayObj.getMonth(), todayObj.getDate(), 12, 0, 0);
+
+        const diffDays = Math.round((todayNoon - firstDate) / (1000 * 60 * 60 * 24));
+        let runningStreak = 0;
+
+        for (let offset = -diffDays; offset <= 0; offset++) {
+          const dObj = getLogicalDateObj(offset);
+          const st = getDayStats(dObj, state);
+
+          if (st.percent === 100) perfectCount++;
+
+          if (st.percent >= 80) {
+            runningStreak++;
+            if (runningStreak > bestStreak) bestStreak = runningStreak;
+          } else {
+            // Jika bukan hari ini (hari sudah lewat) dan sebelumnya punya streak aktif, maka terhitung runtuh
+            if (offset < 0 && runningStreak > 0) {
+              brokenCount++;
+            }
+            if (offset < 0) {
+              runningStreak = 0;
+            }
+          }
+        }
+      }
+
+      return { currentStreak, bestStreak, brokenCount, perfectCount };
+    }
+
     // ==========================================
-    // 6. AKSI INTERAKTIF PENGGUNA
+    // 6. INTERAKSI PENGGUNA (CENTANG, EDIT, TAB)
     // ==========================================
     function toggleHabit(habitId) {
       const state = loadAppState();
       const todayObj = getLogicalDateObj(0);
-      const todayKey = formatDateKey(todayObj);
+      const prevStats = getDayStats(todayObj, state);
+      const todayKey = prevStats.dateKey;
 
-      if (!state.history[todayKey]) {
-        state.history[todayKey] = {};
-      }
+      if (!state.history[todayKey]) state.history[todayKey] = {};
 
-      const nextStatus = !state.history[todayKey][habitId];
-      if (nextStatus) {
+      const isChecking = !state.history[todayKey][habitId];
+      if (isChecking) {
         state.history[todayKey][habitId] = true;
       } else {
         delete state.history[todayKey][habitId];
       }
 
-      playTactileClick(nextStatus);
       saveAppState(state);
+      const nextStats = getDayStats(todayObj, state);
+
+      // Deteksi apakah baru saja menembus Checkpoint 50%, 80%, atau 100%
+      if (isChecking) {
+        if (prevStats.percent < 100 && nextStats.percent === 100) {
+          triggerHapticPulse('perfect');
+          playFeedbackSound('cp100');
+          showToast('👑 100% PERFECT DAY! Semua target tuntas!');
+        } else if (prevStats.percent < 80 && nextStats.percent >= 80) {
+          triggerHapticPulse('milestone');
+          playFeedbackSound('cp80');
+          showToast('🔥 80% Tercapai! Streak harian resmi aman!');
+        } else if (prevStats.percent < 50 && nextStats.percent >= 50) {
+          triggerHapticPulse('milestone');
+          playFeedbackSound('cp50');
+          showToast('⚡ Checkpoint 50% Tembus! Separuh jalan beres!');
+        } else {
+          triggerHapticPulse('light');
+          playFeedbackSound('check');
+        }
+      } else {
+        triggerHapticPulse('light');
+        playFeedbackSound('uncheck');
+      }
+
       renderApp();
     }
 
@@ -790,9 +1435,9 @@
       if (!baseHabit) return;
 
       const currentTitle = state.customTitles[habitId] || baseHabit.title;
-      const updated = prompt('Ubah nama target habit (kosongkan untuk kembali ke default):', currentTitle);
+      const updated = prompt('Ubah nama target habit (kosongkan untuk kembali ke awal):', currentTitle);
 
-      if (updated === null) return; // Batal
+      if (updated === null) return;
       const trimmed = updated.trim();
 
       if (trimmed === '' || trimmed === baseHabit.title) {
@@ -803,176 +1448,372 @@
 
       saveAppState(state);
       renderApp();
+      showToast('✏️ Nama target diperbarui');
     }
 
     function toggleShowAllDays() {
       showAllMode = !showAllMode;
+      triggerHapticPulse('light');
+      renderApp();
+    }
+
+    function switchTab(tabName) {
+      currentTab = tabName;
+      triggerHapticPulse('light');
+      document.getElementById('tab-btn-today').classList.toggle('active', tabName === 'today');
+      document.getElementById('tab-btn-overview').classList.toggle('active', tabName === 'overview');
+      document.getElementById('view-today').classList.toggle('hidden', tabName !== 'today');
+      document.getElementById('view-overview').classList.toggle('hidden', tabName !== 'overview');
       renderApp();
     }
 
     // ==========================================
-    // 7. RENDER UI & HEATMAP
+    // 7. RENDER UI & AMBIENT GLOW DINAMIS
     // ==========================================
     const DAY_NAMES_FULL = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     const DAY_NAMES_SHORT = ['AHD', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
     const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-    function renderHeatmap(state) {
-      const container = document.getElementById('heatmap-row');
+    function updateAmbientTheme(percent) {
+      const root = document.documentElement;
+      const hero = document.getElementById('hero-card');
+      const chip = document.getElementById('status-chip');
+
+      hero.classList.remove('stage-50', 'stage-80', 'stage-100');
+
+      if (percent === 100) {
+        hero.classList.add('stage-100');
+        chip.textContent = '👑 PERFECT DAY (100%)';
+        root.style.setProperty('--ambient-top', 'rgba(245, 158, 11, 0.22)');
+        root.style.setProperty('--ambient-side', 'rgba(16, 185, 129, 0.14)');
+      } else if (percent >= 80) {
+        hero.classList.add('stage-80');
+        chip.textContent = '🔥 STREAK AMAN (≥80%)';
+        root.style.setProperty('--ambient-top', 'rgba(16, 185, 129, 0.20)');
+        root.style.setProperty('--ambient-side', 'rgba(6, 182, 212, 0.14)');
+      } else if (percent >= 50) {
+        hero.classList.add('stage-50');
+        chip.textContent = '⚡ CHECKPOINT 50% TEMBUS';
+        root.style.setProperty('--ambient-top', 'rgba(6, 182, 212, 0.20)');
+        root.style.setProperty('--ambient-side', 'rgba(99, 102, 241, 0.14)');
+      } else if (percent > 0) {
+        chip.textContent = '🚀 MENUJU CHECKPOINT 50%';
+        root.style.setProperty('--ambient-top', 'rgba(99, 102, 241, 0.16)');
+        root.style.setProperty('--ambient-side', 'rgba(56, 189, 248, 0.10)');
+      } else {
+        chip.textContent = '🎯 MULAI EKSEKUSI';
+        root.style.setProperty('--ambient-top', 'rgba(99, 102, 241, 0.14)');
+        root.style.setProperty('--ambient-side', 'rgba(30, 41, 59, 0.2)');
+      }
+    }
+
+    function renderWeeklyFixedStrip(state, todayKey) {
+      const weekDates = getCurrentWeekDates(); // Selalu Ahad s/d Sabtu
+      const grid = document.getElementById('heatmap-grid');
       let html = '';
+      let sumPct = 0;
+      let passedDays = 0;
 
-      // Menampilkan 7 hari terakhir (dari H-6 sampai Hari Ini)
-      for (let offset = -6; offset <= 0; offset++) {
-        const dObj = getLogicalDateObj(offset);
-        const stats = getDayStats(dObj, state);
-        const isToday = offset === 0;
-        const shortDay = DAY_NAMES_SHORT[dObj.getDay()];
+      weekDates.forEach(dObj => {
+        const st = getDayStats(dObj, state);
+        const isToday = st.dateKey === todayKey;
+        const isFuture = dObj > getLogicalDateObj(0) && !isToday;
+        const dayShort = DAY_NAMES_SHORT[dObj.getDay()];
 
-        let boxClass = 'heatmap-box';
-        let label = stats.percent > 0 ? `${stats.percent}%` : '·';
+        if (!isFuture) {
+          sumPct += st.percent;
+          passedDays++;
+        }
 
-        if (stats.percent === 100) {
-          boxClass += ' level-perfect';
+        let pillClass = 'heat-pill';
+        let label = isFuture ? '–' : (st.percent > 0 ? `${st.percent}%` : '0%');
+
+        if (st.percent === 100) {
+          pillClass += ' lv-100';
           label = '100';
-        } else if (stats.percent >= 80) {
-          boxClass += ' level-streak';
-        } else if (stats.percent > 0) {
-          boxClass += ' level-partial';
+        } else if (st.percent >= 80) {
+          pillClass += ' lv-80';
+        } else if (st.percent >= 50) {
+          pillClass += ' lv-50';
+        } else if (st.percent > 0) {
+          pillClass += ' lv-low';
         }
 
         html += `
-          <div class="heatmap-cell ${isToday ? 'is-today' : ''}">
-            <span class="heatmap-day-name">${shortDay}</span>
-            <div class="${boxClass}">${label}</div>
+          <div class="heat-col ${isToday ? 'today' : ''}">
+            <span class="heat-day">${dayShort}</span>
+            <div class="${pillClass}">${label}</div>
           </div>
         `;
-      }
+      });
 
-      container.innerHTML = html;
+      grid.innerHTML = html;
+      const avg = passedDays > 0 ? Math.round(sumPct / passedDays) : 0;
+      document.getElementById('week-avg-badge').textContent = `RATA-RATA PEKAN: ${avg}%`;
+      return { weekDates, avg };
+    }
+
+    function renderOverviewTab(state, historyStats, weekInfo) {
+      document.getElementById('stat-cur-streak').textContent = `${historyStats.currentStreak} Hari`;
+      document.getElementById('stat-best-streak').textContent = `${historyStats.bestStreak} Hari`;
+      document.getElementById('stat-broken-count').textContent = `${historyStats.brokenCount} Kali`;
+      document.getElementById('stat-perfect-count').textContent = `${historyStats.perfectCount} Hari`;
+      document.getElementById('overview-week-avg').textContent = `RATA-RATA: ${weekInfo.avg}%`;
+
+      // 1. Render Grafik Batang Mingguan (Ahad - Sabtu)
+      const chartContainer = document.getElementById('overview-bar-chart');
+      let chartHtml = '';
+      const todayKey = formatDateKey(getLogicalDateObj(0));
+
+      weekInfo.weekDates.forEach(dObj => {
+        const st = getDayStats(dObj, state);
+        const isToday = st.dateKey === todayKey;
+        const dayShort = DAY_NAMES_SHORT[dObj.getDay()];
+        let barColor = '#6366F1';
+        if (st.percent === 100) barColor = '#F59E0B';
+        else if (st.percent >= 80) barColor = '#10B981';
+        else if (st.percent >= 50) barColor = '#06B6D4';
+
+        chartHtml += `
+          <div class="bar-col">
+            <span class="bar-pct">${st.percent}%</span>
+            <div class="bar-track" style="${isToday ? 'border-color:#38BDF8;' : ''}">
+              <div class="bar-fill" style="height:${Math.max(st.percent, 4)}%; background:${barColor};"></div>
+            </div>
+            <span class="heat-day" style="${isToday ? 'color:#38BDF8;' : ''}">${dayShort}</span>
+          </div>
+        `;
+      });
+      chartContainer.innerHTML = chartHtml;
+
+      // 2. Render Evaluasi Kepatuhan Habit (14 Hari Terakhir)
+      const evalScores = DEFAULT_HABITS.map(habit => {
+        let scheduledDays = 0;
+        let completedDays = 0;
+
+        for (let i = 0; i > -14; i--) {
+          const dObj = getLogicalDateObj(i);
+          const dKey = formatDateKey(dObj);
+          // Hanya hitung hari yang memang sudah pernah dibuka/diisi atau hari ini
+          const hasAnyRecord = state.history[dKey] || i === 0;
+          if (hasAnyRecord && habit.days.includes(dObj.getDay())) {
+            scheduledDays++;
+            if (state.history[dKey] && state.history[dKey][habit.id]) {
+              completedDays++;
+            }
+          }
+        }
+
+        const rate = scheduledDays > 0 ? Math.round((completedDays / scheduledDays) * 100) : 0;
+        const title = state.customTitles[habit.id] || habit.title;
+        return { title, completedDays, scheduledDays, rate };
+      });
+
+      // Urutkan dari yang paling rendah agar mudah dievaluasi
+      evalScores.sort((a, b) => a.rate - b.rate);
+
+      let evalHtml = '';
+      evalScores.forEach(item => {
+        let color = '#10B981';
+        if (item.rate < 50) color = '#F43F5E';
+        else if (item.rate < 80) color = '#F59E0B';
+
+        evalHtml += `
+          <div class="eval-item">
+            <div class="eval-top">
+              <span>${item.title}</span>
+              <span style="font-family:var(--font-mono); color:${color};">${item.rate}% (${item.completedDays}/${item.scheduledDays})</span>
+            </div>
+            <div class="eval-bar-bg">
+              <div class="eval-bar-fill" style="width:${item.rate}%; background:${color};"></div>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById('eval-habit-list').innerHTML = evalHtml;
     }
 
     function renderApp() {
       const state = loadAppState();
       const todayObj = getLogicalDateObj(0);
       const stats = getDayStats(todayObj, state);
+      const historyStats = analyzeHistoryStats(state);
+      const activeDeck = getActiveDeckInfo(todayObj);
 
-      // 1. Render Header Tanggal
+      // 1. Header & Tanggal
       const dayName = DAY_NAMES_FULL[todayObj.getDay()];
       const dateStr = `${todayObj.getDate()} ${MONTH_NAMES[todayObj.getMonth()]} ${todayObj.getFullYear()}`;
-      document.getElementById('day-label').textContent = `PROTOKOL ${dayName.toUpperCase()}`;
-      document.getElementById('date-title').textContent = dateStr;
+      document.getElementById('day-tag').textContent = `HARI ${dayName.toUpperCase()}`;
+      document.getElementById('deck-indicator').textContent = activeDeck.name;
+      document.getElementById('main-date').textContent = dateStr;
 
-      // 2. Render Streak Pill
-      const streak = calculateCurrentStreak(state);
-      const streakPill = document.getElementById('streak-pill');
-      document.getElementById('streak-count').textContent = `${streak}d`;
-      if (streak > 0 || stats.percent >= 80) {
-        streakPill.classList.add('active-streak');
-      } else {
-        streakPill.classList.remove('active-streak');
-      }
+      // 2. Streak Badge
+      const streakBadge = document.getElementById('streak-badge');
+      document.getElementById('streak-count').textContent = `${historyStats.currentStreak}d`;
+      streakBadge.classList.toggle('lit', historyStats.currentStreak > 0 || stats.percent >= 80);
 
-      // 3. Render Dashboard State, Quote & Progress Bar
-      const dashCard = document.getElementById('dashboard-card');
-      dashCard.classList.remove('state-80', 'state-100');
-      if (stats.percent === 100) {
-        dashCard.classList.add('state-100');
-      } else if (stats.percent >= 80) {
-        dashCard.classList.add('state-80');
-      }
+      // 3. Tema Dinamis, Motivasi & Progress Bar
+      updateAmbientTheme(stats.percent);
+      document.getElementById('quote-text').textContent = getContextualQuote(stats.percent, todayObj);
+      document.getElementById('fraction-label').textContent = `${stats.doneCount}/${stats.total} SELESAI`;
+      document.getElementById('percent-big').textContent = `${stats.percent}%`;
+      document.getElementById('progress-bar-fill').style.width = `${stats.percent}%`;
 
-      document.getElementById('quote-box').textContent = getContextualQuote(stats.percent, stats.dateKey);
-      document.getElementById('progress-fraction').textContent = `${stats.doneCount} / ${stats.total} SELESAI`;
-      document.getElementById('progress-percent').textContent = `${stats.percent}%`;
-      document.getElementById('progress-fill').style.width = `${stats.percent}%`;
+      // 4. Kalender Mingguan Tetap (Ahad - Sabtu)
+      const weekInfo = renderWeeklyFixedStrip(state, stats.dateKey);
 
-      // 4. Render 7-Day Heatmap
-      renderHeatmap(state);
-
-      // 5. Render Filter Info
+      // 5. Render Daftar Habit per Fase dengan Aksen Warna
       const toggleBtn = document.getElementById('btn-toggle-all');
-      const sectionInfo = document.getElementById('section-info');
+      const toolbarLabel = document.getElementById('toolbar-label');
       if (showAllMode) {
         toggleBtn.classList.add('active');
         toggleBtn.textContent = 'Hanya Hari Ini';
-        sectionInfo.textContent = 'SEMUA DAFTAR (16 ITEM)';
+        toolbarLabel.textContent = 'SEMUA HABIT (16 ITEM)';
       } else {
         toggleBtn.classList.remove('active');
         toggleBtn.textContent = `Lihat Semua (${DEFAULT_HABITS.length})`;
-        sectionInfo.textContent = `JADWAL ${dayName.toUpperCase()} (${stats.total} ITEM)`;
+        toolbarLabel.textContent = `JADWAL ${dayName.toUpperCase()} (${stats.total} ITEM)`;
       }
 
-      // 6. Render Daftar Habit per Fase
-      const visibleHabits = showAllMode
-        ? DEFAULT_HABITS
-        : getScheduledHabitsForDay(stats.dayIndex);
-
+      const visibleHabits = showAllMode ? DEFAULT_HABITS : getScheduledHabitsForDay(stats.dayIndex);
       const phasesOrder = ['Pagi & Fisik', 'Fokus Siang', 'Literasi & Ilmu', 'Sore & Penjagaan', 'Malam & Penutup'];
-      const container = document.getElementById('habits-container');
       let groupsHtml = '';
 
       phasesOrder.forEach(phaseName => {
-        const itemsInPhase = visibleHabits.filter(h => h.phase === phaseName);
-        if (itemsInPhase.length === 0) return;
+        const items = visibleHabits.filter(h => h.phase === phaseName);
+        if (items.length === 0) return;
 
-        const doneInPhase = itemsInPhase.filter(h => stats.completedMap[h.id]).length;
+        const doneInPhase = items.filter(h => stats.completedMap[h.id]).length;
+        const phaseColor = PHASE_META[phaseName].color;
 
-        let itemsHtml = '';
-        itemsInPhase.forEach(habit => {
+        let cardsHtml = '';
+        items.forEach(habit => {
           const isDone = Boolean(stats.completedMap[habit.id]);
           const isScheduledToday = habit.days.includes(stats.dayIndex);
           const displayTitle = state.customTitles[habit.id] || habit.title;
 
-          let badgeHtml = '';
+          let subHtml = '';
           if (habit.scheduleLabel) {
-            const statusNote = !isScheduledToday ? ' • Off hari ini' : '';
-            badgeHtml = `
-              <div class="habit-badge-row">
-                <span class="schedule-tag">${habit.scheduleLabel}${statusNote}</span>
-              </div>
-            `;
+            const offNote = !isScheduledToday ? ' • Off hari ini' : '';
+            subHtml = `<span class="habit-sub">${habit.scheduleLabel}${offNote}</span>`;
           }
 
-          const editBtnHtml = habit.editable
-            ? `<button class="edit-btn" onclick="editHabitTitle(event, '${habit.id}')">Edit</button>`
+          const editBtn = habit.editable
+            ? `<button class="btn-edit-inline" onclick="editHabitTitle(event, '${habit.id}')">Edit</button>`
             : '';
 
-          itemsHtml += `
-            <div class="habit-item ${isDone ? 'completed' : ''}" onclick="toggleHabit('${habit.id}')">
-              <div class="habit-left">
-                <div class="checkbox-ring">
-                  <svg class="check-svg" viewBox="0 0 24 24">
+          cardsHtml += `
+            <div class="habit-card ${isDone ? 'done' : ''}" style="--phase-color: ${phaseColor};" onclick="toggleHabit('${habit.id}')">
+              <div class="habit-main">
+                <div class="check-box">
+                  <svg class="check-icon" viewBox="0 0 24 24">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                 </div>
-                <div class="habit-text-wrap">
-                  <span class="habit-name">${displayTitle}</span>
-                  ${badgeHtml}
+                <div class="habit-info">
+                  <span class="habit-title">${displayTitle}</span>
+                  ${subHtml}
                 </div>
               </div>
-              ${editBtnHtml}
+              ${editBtn}
             </div>
           `;
         });
 
         groupsHtml += `
-          <div class="phase-group">
-            <div class="phase-header">
-              <span class="phase-title">${phaseName}</span>
-              <span class="phase-counter">${doneInPhase}/${itemsInPhase.length}</span>
+          <div class="phase-block">
+            <div class="phase-title-row">
+              <span class="phase-badge">
+                <span class="phase-dot" style="background:${phaseColor}; box-shadow: 0 0 8px ${phaseColor};"></span>
+                ${phaseName}
+              </span>
+              <span class="phase-count">${doneInPhase}/${items.length}</span>
             </div>
-            <div class="habit-list">
-              ${itemsHtml}
-            </div>
+            <div class="habit-stack">${cardsHtml}</div>
           </div>
         `;
       });
 
-      container.innerHTML = groupsHtml;
+      document.getElementById('habits-container').innerHTML = groupsHtml;
+
+      // 6. Render halaman Overview
+      renderOverviewTab(state, historyStats, weekInfo);
     }
 
     // ==========================================
-    // 8. INISIALISASI & AUTO-WAKE CHECK
+    // 8. FITUR BACKUP & RESTORE DATA
+    // ==========================================
+    function exportBackupData() {
+      const state = loadAppState();
+      const jsonStr = JSON.stringify(state);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(jsonStr).then(() => {
+          showToast('✅ Kode Backup berhasil disalin ke Clipboard!');
+        }).catch(() => {
+          prompt('Salin kode backup di bawah ini secara manual:', jsonStr);
+        });
+      } else {
+        prompt('Salin kode backup di bawah ini secara manual:', jsonStr);
+      }
+    }
+
+    function importBackupData() {
+      const raw = prompt('Tempel (Paste) kode JSON Backup kamu di sini:');
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw.trim());
+        if (typeof parsed !== 'object' || !parsed.history) {
+          alert('Format kode backup tidak valid.');
+          return;
+        }
+        saveAppState({
+          customTitles: parsed.customTitles || {},
+          history: parsed.history || {}
+        });
+        renderApp();
+        showToast('🎉 Data berhasil dipulihkan!');
+      } catch (e) {
+        alert('Gagal membaca kode backup. Pastikan teks JSON utuh.');
+      }
+    }
+
+    function downloadBackupFile() {
+      const state = loadAppState();
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `protocol-backup-${formatDateKey(getLogicalDateObj(0))}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('💾 File backup diunduh');
+    }
+
+    function handleFileImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!parsed.history) throw new Error('Invalid');
+          saveAppState({
+            customTitles: parsed.customTitles || {},
+            history: parsed.history || {}
+          });
+          renderApp();
+          showToast('🎉 File backup berhasil dipulihkan!');
+        } catch (err) {
+          alert('File JSON tidak valid.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // ==========================================
+    // 9. INISIALISASI & PENJAGA WAKTU 03:30
     // ==========================================
     let activeDateKey = formatDateKey(getLogicalDateObj(0));
 
@@ -984,10 +1825,8 @@
       }
     }
 
-    // Render pertama kali saat dibuka
     renderApp();
 
-    // Cek pergantian hari otomatis saat aplikasi dibuka dari background iOS
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         checkRollover();
@@ -995,7 +1834,6 @@
       }
     });
 
-    // Cek berkala setiap 30 detik jika layar terus menyala melewati pukul 03:30
     setInterval(checkRollover, 30000);
   </script>
 </body>
