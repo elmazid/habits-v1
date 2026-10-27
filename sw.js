@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daily-protocol-offline-v1';
+const CACHE_NAME = 'daily-protocol-offline-v2';
 const OFFLINE_ASSETS = [
   './',
   './index.html',
