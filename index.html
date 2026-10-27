@@ -1812,8 +1812,8 @@
       reader.readAsText(file);
     }
 
-    // ==========================================
-    // 9. INISIALISASI & PENJAGA WAKTU 03:30
+// ==========================================
+    // 9. INISIALISASI, PENJAGA WAKTU & OFFLINE PWA
     // ==========================================
     let activeDateKey = formatDateKey(getLogicalDateObj(0));
 
@@ -1835,6 +1835,13 @@
     });
 
     setInterval(checkRollover, 30000);
+
+    // Registrasi Service Worker untuk Mode Offline Penuh
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>
